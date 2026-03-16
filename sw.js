@@ -1,4 +1,4 @@
-const CACHE = 'reefxcross-v2';
+const CACHE = 'reefxcross-v3';
 const ASSETS = [
   '/reefxcross/',
   '/reefxcross/index.html',
