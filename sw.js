@@ -1,8 +1,8 @@
-const CACHE = 'reefxcross-v1';
+const CACHE = 'reefxcross-v2';
 const ASSETS = [
-  '/',
-  '/reefxcross/','/reefxcross/index.html',
-  '/manifest.json',
+  '/reefxcross/',
+  '/reefxcross/index.html',
+  '/reefxcross/manifest.json',
   'https://fonts.googleapis.com/css2?family=Pacifico&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js'
 ];
