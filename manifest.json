@@ -2,7 +2,7 @@
   "name": "ReefXCross – Precision Reef Care",
   "short_name": "ReefXCross",
   "description": "ReefXCross parameter logger with ICP-OES advisor and Modern Reef RKS dosing calculator. By reefxcross.com",
-  "start_url": "/",
+  "start_url": "/reefxcross/","scope": "/reefxcross/",
   "display": "standalone",
   "background_color": "#060f1a",
   "theme_color": "#48c0c0",
