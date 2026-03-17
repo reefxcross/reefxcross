@@ -872,6 +872,99 @@ function runICP(){
 }
 
 // ---- RESET ----
+
+// ---- BACKUP & RESTORE ----
+function exportData(){
+  const data = {
+    version: 1,
+    exported: new Date().toISOString(),
+    tanks: tanks,
+    logs: {},
+    mr: {}
+  };
+  tanks.forEach(t => {
+    data.logs[t.id] = getLog(t.id);
+    data.mr[t.id]   = getMR(t.id);
+  });
+  const json = JSON.stringify(data, null, 2);
+  const date = new Date().toISOString().slice(0,10);
+  const filename = "reefxcross-backup-" + date + ".json";
+  const blob = new Blob([json], {type: "application/json"});
+  const ok  = document.getElementById("backup-ok");
+  const err = document.getElementById("backup-err");
+
+  // Web Share API — works best on Android/iOS installed PWA
+  if (navigator.share && navigator.canShare) {
+    const file = new File([blob], filename, {type: "application/json"});
+    if (navigator.canShare({files: [file]})) {
+      navigator.share({
+        title: "ReefXCross Backup",
+        text: "ReefXCross tank data — save to Google Drive, OneDrive, or iCloud.",
+        files: [file]
+      }).then(() => {
+        ok.textContent = "Backup shared! Save the file wherever you like — Google Drive, OneDrive, email, etc.";
+        ok.style.display = "block";
+        setTimeout(() => ok.style.display = "none", 6000);
+      }).catch(e => {
+        if (e.name !== "AbortError") fallbackDownload(blob, filename);
+      });
+      return;
+    }
+  }
+  fallbackDownload(blob, filename);
+}
+
+function fallbackDownload(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a   = document.createElement("a");
+  a.href    = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const ok = document.getElementById("backup-ok");
+  ok.textContent = "Backup downloaded as " + filename + " — save it to Google Drive, OneDrive, or email it to yourself.";
+  ok.style.display = "block";
+  setTimeout(() => ok.style.display = "none", 6000);
+}
+
+function importData(event){
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.version || !data.tanks) throw new Error("Invalid backup file.");
+      const dateStr = data.exported ? data.exported.slice(0,10) : "unknown date";
+      if (!confirm("This will REPLACE all current data with the backup from " + dateStr + ". Are you sure?")) return;
+      tanks = data.tanks;
+      localStorage.setItem("rxc_tanks", JSON.stringify(tanks));
+      Object.keys(data.logs || {}).forEach(id => {
+        localStorage.setItem("rxc_log_" + id, JSON.stringify(data.logs[id]));
+      });
+      Object.keys(data.mr || {}).forEach(id => {
+        localStorage.setItem("rxc_mr_"  + id, JSON.stringify(data.mr[id]));
+      });
+      activeTankId = tanks[0]?.id || null;
+      localStorage.setItem("rxc_active", activeTankId);
+      renderTankBar(); renderTankList(); updateTankLabels(); updStats(); renderMRLog(); animTank();
+      const ok = document.getElementById("backup-ok");
+      ok.textContent = "Restore complete! " + tanks.length + " tank(s) loaded with all logs and dose history.";
+      ok.style.display = "block";
+      setTimeout(() => ok.style.display = "none", 5000);
+    } catch(err) {
+      const errEl = document.getElementById("backup-err");
+      errEl.textContent = "Import failed: " + err.message + ". Make sure you selected a valid ReefXCross backup file.";
+      errEl.style.display = "block";
+      setTimeout(() => errEl.style.display = "none", 5000);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+}
+
 function resetAll(){
   if(!confirm("Delete ALL tanks and data? Cannot be undone."))return;
   tanks.forEach(t=>{localStorage.removeItem("rxc_log_"+t.id);localStorage.removeItem("rxc_mr_"+t.id);});
