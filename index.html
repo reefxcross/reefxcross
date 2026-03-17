@@ -414,7 +414,18 @@ select.pf{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
     </div>
   </div>
   <div class="card">
-    <div class="ct">Data</div>
+    <div class="ct">Backup & Restore</div>
+    <p class="sdesc" style="font-size:11px;margin-bottom:12px;">Export saves ALL your tanks and logs as a single file. Save it to Google Drive, OneDrive, iCloud, or email it to yourself. Use Import to restore on a new phone.</p>
+    <div class="br" style="margin-top:0;">
+      <button class="btn bp" onclick="exportData()" style="flex:1;">Export All Data</button>
+      <button class="btn bs" onclick="document.getElementById('import-file').click()" style="flex:1;">Import Backup</button>
+      <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(event)">
+    </div>
+    <div id="backup-ok" class="ob" style="display:none;margin-top:10px;"></div>
+    <div id="backup-err" class="rb" style="display:none;margin-top:10px;"></div>
+  </div>
+  <div class="card">
+    <div class="ct">Danger Zone</div>
     <div class="br">
       <button class="btn bd" onclick="resetAll()">Reset All Data</button>
     </div>
